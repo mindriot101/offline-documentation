@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns:fb="https://www.facebook.com/2008/fbml" xmlns:addthis="https://www.addthis.com/help/api-spec"  prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="git_revision" content="">
+	<meta name="ecs_revision" content="">
+	<title>A Super-Simple Makefile for Medium-Sized C/C++ Projects</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="pingback" href="https://spin.atomicobject.com/xmlrpc.php">
+	<link rel="icon" type="image/x-icon" href="https://spin.atomicobject.com/wp-content/themes/spin/images/favicon.ico" />
+
+	<!-- Styles -->
+	<script src="//use.typekit.net/upt0gyp.js"></script>
+	<script>try{Typekit.load();}catch(e){}</script>
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700">
+
+	<!-- WP Head -->
+	
+	<style type="text/css">
+		#fancybox-close{right:-15px;top:-15px}
+		div#fancybox-content{border-color:#FFFFFF}
+		div#fancybox-title{background-color:#FFFFFF}
+		div#fancybox-outer{background-color:#FFFFFF}
+		div#fancybox-title-inside{color:#333333}
+	</style>
+
+	
+<!-- This site is optimized with the Yoast SEO plugin v4.6 - https://yoast.com/wordpress/plugins/seo/ -->
+<meta name="description" content="A simple Makefile for C or C++ that automatically finds sources, determines include flags, and sets up header dependencies."/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/" />
+<link rel="publisher" href="https://plus.google.com/b/110228015808150756207/+Atomicobject"/>
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="A Super-Simple Makefile for Medium-Sized C/C++ Projects" />
+<meta property="og:description" content="A simple Makefile for C or C++ that automatically finds sources, determines include flags, and sets up header dependencies." />
+<meta property="og:url" content="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/" />
+<meta property="og:site_name" content="Atomic Spin" />
+<meta property="article:publisher" content="https://www.facebook.com/atomicobject" />
+<meta property="article:section" content="C &amp; C++" />
+<meta property="article:published_time" content="2016-08-26T08:00:42-04:00" />
+<meta property="article:modified_time" content="2016-08-26T11:10:07-04:00" />
+<meta property="og:updated_time" content="2016-08-26T11:10:07-04:00" />
+<meta property="fb:admins" content="886890430" />
+<meta property="og:image" content="https://spin.atomicobject.com/wp-content/uploads/20160801161626/vranish-featured-image-spin.jpg" />
+<meta property="og:image:width" content="672" />
+<meta property="og:image:height" content="372" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:description" content="A simple Makefile for C or C++ that automatically finds sources, determines include flags, and sets up header dependencies." />
+<meta name="twitter:title" content="A Super-Simple Makefile for Medium-Sized C/C++ Projects" />
+<meta name="twitter:site" content="@atomicobject" />
+<meta name="twitter:image" content="https://spin.atomicobject.com/wp-content/uploads/20160801161626/vranish-featured-image-spin.jpg" />
+<meta name="twitter:creator" content="@JobVranish" />
+<!-- / Yoast SEO plugin. -->
+
+<link rel='dns-prefetch' href='//s7.addthis.com' />
+<link rel='dns-prefetch' href='//s0.wp.com' />
+<link rel='dns-prefetch' href='//s.w.org' />
+<link rel="alternate" type="application/rss+xml" title="Atomic Spin &raquo; Feed" href="https://spin.atomicobject.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Atomic Spin &raquo; Comments Feed" href="https://spin.atomicobject.com/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Atomic Spin &raquo; A Super-Simple Makefile for Medium-Sized C/C++ Projects Comments Feed" href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/feed/" />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/spin.atomicobject.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='fancybox-css'  href='https://spin.atomicobject.com/wp-content/plugins/fancybox-for-wordpress/fancybox/fancybox.css?ver=4.7.3' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-syntax-css-css'  href='https://spin.atomicobject.com/wp-content/themes/spin/wp-syntax.css?ver=1.1' type='text/css' media='all' />
+<link rel='stylesheet' id='spin_styles-css'  href='https://spin.atomicobject.com/wp-content/themes/spin/style.css?ver=4.7.3' type='text/css' media='all' />
+<link rel='stylesheet' id='addthis_all_pages-css'  href='https://spin.atomicobject.com/wp-content/plugins/addthis-smart-layers/frontend/build/addthis_wordpress_public.min.css?ver=4.7.3' type='text/css' media='all' />
+<link rel='stylesheet' id='jetpack_css-css'  href='https://spin.atomicobject.com/wp-content/plugins/jetpack/css/jetpack.css?ver=4.8.2' type='text/css' media='all' />
+<!-- This site uses the Google Analytics by MonsterInsights plugin v6.1.7 - Using Analytics tracking - https://www.monsterinsights.com/ -->
+<script type="text/javascript" data-cfasync="false">
+	/* Function to detect opted out users */
+	function __gaTrackerIsOptedOut() {
+		return document.cookie.indexOf(disableStr + '=true') > -1;
+	}
+
+	/* Disable tracking if the opt-out cookie exists. */
+	var disableStr = 'ga-disable-UA-628002-3';
+	if ( __gaTrackerIsOptedOut() ) {
+		window[disableStr] = true;
+	}
+
+	/* Opt-out function */
+	function __gaTrackerOptout() {
+	  document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+	  window[disableStr] = true;
+	}
+
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','__gaTracker');
+
+	__gaTracker('create', 'UA-628002-3', 'auto');
+	__gaTracker('set', 'forceSSL', true);
+	__gaTracker('send','pageview');
+</script>
+<!-- / Google Analytics by MonsterInsights -->
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-admin/admin-ajax.php?action=addthis_global_options_settings&#038;ver=4.7.3'></script>
+<script type='text/javascript' src='https://s7.addthis.com/js/300/addthis_widget.js?ver=4.7.3#pubid=ra-4eb2a461610f24a9'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-includes/js/jquery/jquery.js?ver=1.12.4'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/plugins/fancybox-for-wordpress/fancybox/jquery.fancybox.js?ver=1.3.8'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/themes/spin/js/prism.js?ver=4.7.3'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/themes/spin/scripts.js?ver=4.7.3'></script>
+<link rel='https://api.w.org/' href='https://spin.atomicobject.com/wp-json/' />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://spin.atomicobject.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://spin.atomicobject.com/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 4.7.3" />
+<link rel='shortlink' href='https://spin.atomicobject.com/?p=127770' />
+<link rel="alternate" type="application/json+oembed" href="https://spin.atomicobject.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fspin.atomicobject.com%2F2016%2F08%2F26%2Fmakefile-c-projects%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://spin.atomicobject.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fspin.atomicobject.com%2F2016%2F08%2F26%2Fmakefile-c-projects%2F&#038;format=xml" />
+
+<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+
+<!-- Fancybox for WordPress -->
+<script type="text/javascript">
+jQuery(function(){
+
+jQuery.fn.getTitle = function() { // Copy the title of every IMG tag and add it to its parent A so that fancybox can show titles
+	var arr = jQuery("a.fancybox");
+	jQuery.each(arr, function() {
+		var title = jQuery(this).children("img").attr("title");
+		jQuery(this).attr('title',title);
+	})
+}
+
+// Supported file extensions
+var thumbnails = jQuery("a:has(img)").not(".nolightbox").filter( function() { return /\.(jpe?g|png|gif|bmp)$/i.test(jQuery(this).attr('href')) });
+
+thumbnails.addClass("fancybox").attr("rel","fancybox").getTitle();
+jQuery("a.fancybox").fancybox({
+	'cyclic': false,
+	'autoScale': true,
+	'padding': 10,
+	'opacity': true,
+	'speedIn': 500,
+	'speedOut': 500,
+	'changeSpeed': 300,
+	'overlayShow': true,
+	'overlayOpacity': "0.3",
+	'overlayColor': "#666666",
+	'titleShow': true,
+	'titlePosition': 'inside',
+	'enableEscapeButton': true,
+	'showCloseButton': true,
+	'showNavArrows': true,
+	'hideOnOverlayClick': true,
+	'hideOnContentClick': false,
+	'width': 560,
+	'height': 340,
+	'transitionIn': "fade",
+	'transitionOut': "fade",
+	'centerOnScroll': true
+});
+
+
+})
+</script>
+<!-- END Fancybox for WordPress -->
+<link rel='https://github.com/WP-API/WP-API' href='https://spin.atomicobject.com/wp-json' />
+<style>.post-thumbnail img[src$='.svg'] { width: 100%; height: auto; }</style>
+<link rel='dns-prefetch' href='//v0.wordpress.com'>
+<style type='text/css'>img#wpstats{display:none}</style>
+<!-- Dynamic Widgets by QURL - http://www.qurl.nl //-->
+
+</head>
+
+<body class="post-template-default single single-post postid-127770 single-format-standard group-blog" data-has-drawer="true">
+
+	<div id="border-top" class="borders border-h"></div>
+	<div id="border-left" class="borders border-v"></div>
+	<div id="border-right" class="borders border-v"></div>
+	<div id="border-bottom" class="borders border-h"></div>
+
+
+	<div id="mobile-header">
+		<a href="https://atomicobject.com/">
+			<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/ao-wordmark-logo.svg" alt="Atomic Object" class="mobile-wordmark-logo" />
+		</a>
+		<a href="#mobile-nav" id="mobile-nav-trigger" data-toggle="#mobile-nav">
+			<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/icon-mobile-menu.svg" alt="Show Nav" />
+		</a>
+	</div>
+
+  <nav id="mobile-nav">
+	  <div class="mobile-nav-close-wrap">
+	    <img src="https://spin.atomicobject.com/wp-content/themes/spin/images/icon-mobile-close.svg" alt="Close Menu" id="icon-mobile-close" class="mobile-nav-close" data-toggle="#mobile-nav" />
+	  </div>
+
+		<div class='nav-link-holder'>
+			<a href="/" class="backlink">
+				&lt; Blog Home
+			</a>
+		</div>
+
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/">
+					Atomic Object				</a>
+			</div>
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/services">
+					Services				</a>
+			</div>
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/team">
+					Team				</a>
+			</div>
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/culture">
+					Culture				</a>
+			</div>
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/portfolio">
+					Portfolio				</a>
+			</div>
+					<div class="nav-link-holder">
+				<a href="https://atomicobject.com/contact">
+					Contact				</a>
+			</div>
+		  </nav>
+
+	<nav id="main-nav" class="main-nav">
+	  <div id="top-nav">
+	    <div class="main-nav-inner">
+	      <a href="https://atomicobject.com/" class="logo wordmark">
+	        <img src="https://spin.atomicobject.com/wp-content/themes/spin/images/ao-wordmark-white.svg" alt="Atomic Object" class="white" />
+	        <img src="https://spin.atomicobject.com/wp-content/themes/spin/images/ao-wordmark-logo.svg" alt="Atomic Object" class="color" />
+	      </a>
+
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/services">
+						Services					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/team">
+						Team					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/culture">
+						Culture					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/portfolio">
+						Portfolio					</a>
+				</div>
+			
+		    <div class="nav-link-holder blog">
+		      <a href="/" class="current">
+		        Blog
+		      </a>
+		    </div>
+
+		    <div class="nav-link-holder contact">
+		      <a href="https://atomicobject.com/contact" class="button">
+		        Contact
+		      </a>
+		    </div>
+		  </div>
+	  </div><!-- /#top-nav -->
+
+    <div id="fixed-nav" class="animated">
+      <div class="main-nav-inner">
+        <a href="https://atomicobject.com/" class="logo symbol">
+	        <img src="https://spin.atomicobject.com/wp-content/themes/spin/images/ao-symbol-red.svg" alt="Atomic Object" />
+        </a>
+
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/services">
+						Services					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/team">
+						Team					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/culture">
+						Culture					</a>
+				</div>
+							<div class="nav-link-holder">
+					<a href="https://atomicobject.com/portfolio">
+						Portfolio					</a>
+				</div>
+			
+        <div class="nav-link-holder blog">
+		      <a href="/" class="current">
+            Blog
+          </a>
+        </div>
+
+        <div class="nav-link-holder contact">
+		      <a href="https://atomicobject.com/contact" class="button">
+            Contact
+          </a>
+        </div>
+      </div>
+    </div><!-- /#fixed-nav -->
+  </nav><!-- /#main-nav -->
+
+
+	<div id="page" class="hfeed site">
+
+		<header id="masthead" class="site-header" role="banner">
+			<div class="site-branding">
+				<h1 class="site-title">
+					<a href="https://spin.atomicobject.com/" rel="home">
+						Atomic Spin					</a>
+				</h1>
+				<h2 class="site-description">Atomic Object’s blog on everything we find fascinating.</h2>
+			</div>
+		</header><!-- #masthead -->
+
+		<div id="content" class="site-content">
+
+
+	
+<div id="secondary" class="secondary" role="complementary">
+	
+		<a class="secondary-close" data-toggle="#secondary">Close</a>
+
+		<div class="secondary-inner">
+			<div class="back-link-container">
+				<a href="/">&lt; back to Blog Home</a>
+			</div>
+
+			
+		<div class="author-bio">
+			<a href="/author/vranish/" class="author-bio-img">
+				<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" alt="">
+			</a>
+			<h6 class="author-bio-name">
+				By: <a href="/author/vranish/">Job Vranish</a>
+			</h6>
+			<p class="author-bio-description">Software Consultant and Developer with a background building embedded systems. Likes spaceships, fun programming languages that make it easier to write correct software, and playing games with friends.</p>
+			<ul class="social-icon-list author-bio-links">
+				<li class="social-icon-list-item github">
+					<a href="http://github.com/jvranish" title="GitHub" target="_blank">GitHub</a>
+				</li>
+			
+				<li class="social-icon-list-item twitter">
+					<a href="http://twitter.com/JobVranish" title="Twitter" target="_blank">Twitter</a>
+				</li>
+			</ul>
+		</div>
+	
+			<div class="post-categories">
+				<div class="cat-title">Posted In</div>
+				<ul class="cat-list">				<li class="cat-c-c cat-platforms-languages">
+					<a href="https://spin.atomicobject.com/category/platforms-languages/c-c/" class="cat-c-c cat-platforms-languages" rel="category tag">
+						C &amp; C++
+					</a>
+				</li></ul>			</div>
+		</div>
+
+	</div>
+
+<div id="primary" class="primary content-area">
+
+	
+		<a href="#secondary" data-toggle="#secondary" class="secondary-toggle btn">
+			<svg class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+				<g class="bookmark">
+					<polygon points="24,32 16,24 8,32 8,0 24,0 "/>
+				</g>
+				<g class="close">
+					<rect x="13" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -6.6274 16)" width="6" height="32"/>
+					<rect x="13" transform="matrix(-0.7071 -0.7071 0.7071 -0.7071 16 38.6274)" width="6" height="32"/>
+				</g>
+			</svg>
+			<span class="text">About This Author</span>
+		</a>
+	
+	<main id="main" class="site-main" role="main">
+
+		<article itemscope itemtype="http://schema.org/BlogPosting" id="post-127770" class="entry single-article post-127770 post type-post status-publish format-standard has-post-thumbnail hentry category-c-c">
+
+			<header class="entry-header">
+
+				<div class="entry-top-bar">
+					<div itemprop="datePublished" content="2016-08-26" class="post-date">
+						August 26, 2016					</div>
+					
+		<div class="post-author">
+			by:
+			<a href="/author/vranish/">
+				<span itemprop="author" itemscope itemtype="http://schema.org/Person">
+					<span itemprop="name">Job Vranish</span>
+				</span>
+			</a>
+		</div>
+						<div class="post-comment-count">
+						<a href="#comments" data-scroll-to-elem>22 Comments</a>					</div>
+				</div><!-- .entry-meta -->
+
+				<h1 itemprop="name headline" class="entry-title">
+					A Super-Simple Makefile for Medium-Sized C/C++ Projects				</h1>
+
+			</header><!-- .entry-header -->
+
+			<div itemprop="articleBody" class="entry-content">
+
+				<div class="at-above-post addthis_tool" data-url="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/"></div><p>I’ve used <a href="https://www.gnu.org/software/make">Make</a> for a lot for small projects, but for larger ones, it was just too tedious. Until recently, there were four things I wanted my build system to do for me that I hadn’t figured out how to do in Make:<br />
+<span id="more-127770"></span></p>
+<ul>
+<li>Out-of-source builds (object files get dumped in a separate directory from the source)</li>
+<li>Automatic (and accurate!) header dependencies</li>
+<li>Automatic determination of list of object/source files</li>
+<li>Automatic generation of include directory flags</li>
+</ul>
+<p>Here is a simple Makefile that will do all these things and works with C, C++, and assembly:</p>
+<pre><code class="language-makefile">
+
+TARGET_EXEC ?= a.out
+
+BUILD_DIR ?= ./build
+SRC_DIRS ?= ./src
+
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+
+# assembly
+$(BUILD_DIR)/%.s.o: %.s
+	$(MKDIR_P) $(dir $@)
+	$(AS) $(ASFLAGS) -c $&lt; -o $@
+
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $&lt; -o $@
+
+# c++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $&lt; -o $@
+
+
+.PHONY: clean
+
+clean:
+	$(RM) -r $(BUILD_DIR)
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
+
+
+</code></pre>
+<p>Not too bad!<br />
+Also, if you don’t care about out-of-source builds, you can use this even simpler Makefile, which takes advantage of the built-in implicit rules:</p>
+<pre><code class="language-makefile">
+
+
+TARGET ?= a.out
+SRC_DIRS ?= ./src
+
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJS := $(addsuffix .o,$(basename $(SRCS)))
+DEPS := $(OBJS:.o=.d)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) $(OBJS) -o $@ $(LOADLIBES) $(LDLIBS)
+
+.PHONY: clean
+clean:
+	$(RM) $(TARGET) $(OBJS) $(DEPS)
+
+-include $(DEPS)
+
+</code></pre>
+<p>To use one of them, put the Make code in a file call <code>Makefile</code> (make sure the TAB characters get copied! Make is very picky about those) and all of your source and headers in the directory or a subdirectory of <code>./src</code> (you can change this directory by changing SRC_DIRS). Then make sure you have CC and CFLAGS set to what you need for your project or just use the Make defaults.<br />
+Then type <code>make</code>.</p>
+<p>If you run into issues, running <code>make -d</code> can be helpful.</p>
+<p>Here&#8217;s an overview of how it works:</p>
+<h2>Out-of-Source Builds</h2>
+<p>I want all the artifacts from a build to end up in some directory (I usually name it &#8220;./build&#8221;) that’s separate from the source. This makes is easy to do a clean (just <code>rm -rf ./build</code>) even if other artifacts besides the ones generated via Make end up there. It also makes a lot of other things, such as grep’ing the source, a lot nicer.</p>
+<p>To do this in Make, you mostly just need to prepend your output directory to the beginning of your pattern rules. For example, instead of a pattern like: <code>%.o: %.c</code>, which would map your .c files for .o files in the same directory, you can use <code>$(BUILD_DIR)%.o: %.c</code>.</p>
+<h2>Automatic Header Dependencies</h2>
+<p>Handling the header dependencies is perhaps the <em>most</em> tedious thing about using the classic Make technique. Especially since, if you mess it up, you don’t get any explicit errors–things just don&#8217;t get re-compiled when they ought to be. This can lead to .o files having different ideas about what types or prototypes look like. </p>
+<p>There is documentation for this <a href="https://www.gnu.org/software/make/manual/make.html#Automatic-Prerequisites">here</a>. However, the docs seem to assume that the dependency files are generated in a separate step from the compile step, which complicates things.</p>
+<p>If you generate the dependency files as part of the compilation step, things get much simpler. To <em>generate</em> the dependency files, all you have to do is add some flags to the compile command (supported by both <a href="http://clang.llvm.org/get_started.html">Clang</a> and <a href="https://gcc.gnu.org">GCC</a>):</p>
+<ul>
+<li><code>-MMD -MP</code><br />
+which will generate a .d file next to the .o file. Then to <em>use</em> the .d files, you just need to find them all:</li>
+<li><code>DEPS := $(OBJS:.o=.d)</code><br />
+and then -include them:</li>
+<li><code>-include $(DEPS)</code></li>
+</ul>
+</li>
+<h2>Automatic Determination of List of Object/Source Files</h2>
+<p>First, find all of the source files in the given source directories. The simplest and fastest way I found to do this was to just shell out and use <code>find</code>.</p>
+<ul>
+<li><code>SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)</code><br />
+But because Make works backward from the object files to the source, we need to compute all the object files we want from our source files. I basically just prepend a <code>$(BUILD_DIR)/</code> and append a <code>.o</code> to every source file path:</li>
+<li><code>OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)</code><br />
+And then you can make your target depend on the objects files:</li>
+<li>
+<pre class="language-makefile"><code>
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+  $(CC) $(OBJS) -o $@ $(LDFLAGS)
+</code></pre>
+</li>
+</ul>
+</li>
+<h2>Automatic Generation of Include Directory Flags</h2>
+<p>I used a similar technique to generate include directory flags. Find all the directories under the given source directories:</p>
+<ul>
+<li><code>INC_DIRS := $(shell find $(SRC_DIRS) -type d)</code><br />
+And then prefix them with a <code>-I</code>:</li>
+<li><code>INC_FLAGS := $(addprefix -I,$(INC_DIRS))</code></li>
+</ul>
+</li>
+</ul>
+<p>Hope those techniques are helpful for you.</p>
+<!-- AddThis Advanced Settings above via filter on the_content -->
+<!-- AddThis Advanced Settings below via filter on the_content -->
+<!-- AddThis Advanced Settings generic via filter on the_content -->
+<!-- AddThis Share Buttons above via filter on the_content -->
+<!-- AddThis Share Buttons below via filter on the_content -->
+<div class="at-below-post addthis_tool" data-url="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/"></div><!-- AddThis Share Buttons generic via filter on the_content -->
+<!-- AddThis Related Posts below via filter on the_content -->
+<div class="at-below-post-recommended addthis_tool" ></div><!-- AddThis Related Posts generic via filter on the_content -->
+
+				
+			</div><!-- .entry-content -->
+
+			<footer class="entry-footer">
+
+				<div class="entry-share"><span class="entry-share-label">Share this article:</span><ul class="social-icon-list entry-share-links"><li class="social-icon-list-item entry-share-link hackernews"><a href="//news.ycombinator.com/submitlink?u=https://spin.atomicobject.com/2016/08/26/makefile-c-projects/%23.VNUdMcs6UCk.hackernews&t=A Super-Simple Makefile for Medium-Sized C/C++ Projects" data-popup="social-share">Hackernews</a></li><li class="social-icon-list-item entry-share-link twitter"><a href="//twitter.com/intent/tweet?text=A Super-Simple Makefile for Medium-Sized C/C++ Projects&url=https://spin.atomicobject.com/2016/08/26/makefile-c-projects/%23.VNUemPABEaM.twitter&related=" data-popup="social-share">Twitter</a></li><li class="social-icon-list-item entry-share-link facebook"><a href="//www.facebook.com/sharer/sharer.php?u=https://spin.atomicobject.com/2016/08/26/makefile-c-projects/%23.VNUemgHMI00.facebook" data-popup="social-share">Facebook</a></li><li class="social-icon-list-item entry-share-link googleplus"><a href="//plus.google.com/share?url=https://spin.atomicobject.com/2016/08/26/makefile-c-projects/%23.VNUerUAwXzw.google_plusone_share&t=A Super-Simple Makefile for Medium-Sized C/C++ Projects" data-popup="social-share">Googleplus</a></li><li class="social-icon-list-item entry-share-link linkedin"><a href="//www.linkedin.com/shareArticle?mini=true&url=https://spin.atomicobject.com/2016/08/26/makefile-c-projects/%23.VNUeuSKf2A4.linkedin&title=A Super-Simple Makefile for Medium-Sized C/C++ Projects&ro=false&summary=&source=" data-popup="social-share">Linkedin</a></li></ul></div>				<span class="posted-on">Posted on <a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/" rel="bookmark">August 26, 2016</a></span><span class="byline"> by <span class="author vcard"><a class="url fn n" href="https://spin.atomicobject.com/author/vranish/">Job Vranish</a></span></span><span class="cat-links"> in  <a href="https://spin.atomicobject.com/category/platforms-languages/c-c/" rel="category tag" class="cat-c-c">C &amp; C++</a></span>
+			</footer><!-- .entry-footer -->
+
+			<aside class="suggested-posts">
+
+				<h1 class="suggested-posts-title">
+					Related Posts
+				</h1>
+
+				<div class="suggested-posts-container">
+					
+	<article class='suggested-posts-article'>
+  	  	<a href='https://spin.atomicobject.com/2016/01/07/c-plus-plus-11-features/'>
+	  	<div class='suggested-posts-article-image' style="background-image: url('https://spin.atomicobject.com/wp-content/uploads/20160801161630/woelmer-featured-image-spin.jpg')"></div>
+  	</a>
+
+		<div class='suggested-posts-article-body'>
+			<h1 class='suggested-posts-article-title'>
+				<a href="https://spin.atomicobject.com/2016/01/07/c-plus-plus-11-features/">
+					Rekindling an Old Flame with C++11				</a>
+			</h1>
+
+			<div class='suggested-posts-article-byline'>
+				by Mike Woelmer			</div>
+		</div>
+	</article>
+
+  
+	<article class='suggested-posts-article'>
+  	  	<a href='https://spin.atomicobject.com/2015/06/02/opencl-c-mac-osx/'>
+	  	<div class='suggested-posts-article-image' style="background-image: url('https://spin.atomicobject.com/wp-content/uploads/20170321155138/download-1.png')"></div>
+  	</a>
+
+		<div class='suggested-posts-article-body'>
+			<h1 class='suggested-posts-article-title'>
+				<a href="https://spin.atomicobject.com/2015/06/02/opencl-c-mac-osx/">
+					OpenCL for Your &quot;Embarrassingly Parallelizable&quot; Code				</a>
+			</h1>
+
+			<div class='suggested-posts-article-byline'>
+				by Ken Fox			</div>
+		</div>
+	</article>
+
+  
+	<article class='suggested-posts-article'>
+  	  	<a href='https://spin.atomicobject.com/2015/04/10/cmock-make-support/'>
+	  	<div class='suggested-posts-article-image' style="background-image: url('https://spin.atomicobject.com/wp-content/uploads/20160801161629/williams-featured-image-spin.jpg')"></div>
+  	</a>
+
+		<div class='suggested-posts-article-body'>
+			<h1 class='suggested-posts-article-title'>
+				<a href="https://spin.atomicobject.com/2015/04/10/cmock-make-support/">
+					CMock – Make Support for Easier Integration of Testing				</a>
+			</h1>
+
+			<div class='suggested-posts-article-byline'>
+				by Greg Williams			</div>
+		</div>
+	</article>
+
+  				</div>
+
+			</aside>
+
+		</article><!-- #post-## -->
+
+	</main>
+
+	
+<div id="comments" class="comments-area">
+
+	
+			<h2 class="comments-title">
+			22 Comments		</h2>
+
+		
+		<ol class="comment-list">
+				<li class="comment even thread-even depth-1 parent" id="comment-572126">
+		<div id="div-comment-572126" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/23bd498511a79e564b947aa22be33628?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">Davidbrcz</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572126">
+		August 26, 2016</a>	</div>
+
+	<p>Just use cmake or scons.  In 2016, you should not hand write a single makefile ! </p>
+<p>A simple cmake/sconcs build file will be as simple as the one shown (or even simpler !)  and it will definitively will be easier to integrate external dependencies if you have to.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572126#respond' onclick='return addComment.moveForm( "div-comment-572126", "572126", "respond", "127770" )' aria-label='Reply to Davidbrcz'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment odd alt depth-2" id="comment-572127">
+		<div id="div-comment-572127" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/ad8386575d8c2c6b0b776e5ce3a59923?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">i_c_dev_ppl</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572127">
+		August 26, 2016</a>	</div>
+
+	<p>actually, there is more work to be done for cmake: you are writing the cmake config instead of the make file directly, the process is just as lengthy if not worse and requires learning the syntax and steps: <a href="https://cmake.org/cmake-tutorial/" rel="nofollow">https://cmake.org/cmake-tutorial/</a></p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572127#respond' onclick='return addComment.moveForm( "div-comment-572127", "572127", "respond", "127770" )' aria-label='Reply to i_c_dev_ppl'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-vranish bypostauthor even depth-2" id="comment-572132">
+		<div id="div-comment-572132" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572132">
+		August 26, 2016</a>	</div>
+
+	<p>I think the &#8220;simplicity&#8221; in tools like cmake and scons are illusionary. They _are_ often _easier_ to get a project up running quickly, but have _a lot_ more hidden internal complexity. Simple != Easy: <a href="https://www.infoq.com/presentations/Simple-Made-Easy" rel="nofollow">https://www.infoq.com/presentations/Simple-Made-Easy</a></p>
+<p>One example where I got bit by scons specifically:<br />
+I had a case where I needed to have the compiler run from a different directory than where scons was running it. It&#8217;s actually _really hard_ to control the directory where scons runs the compiler from: <a href="http://scons.org/doc/2.1.0/HTML/scons-user/x3398.html" rel="nofollow">http://scons.org/doc/2.1.0/HTML/scons-user/x3398.html</a><br />
+Normally this doesn&#8217;t matter, but it caused me problems when I was trying to collect code coverage metrics for a project. Gcc/Clang put the paths to the corresponding sources into the generated coverage files and other tools like gcov/lcov use those paths when generating coverage reports.<br />
+Our project was quite large and actually used several scons &#8216;variant_dirs&#8217; for different components. And when the different components were linked together and run, the resulting  coverage data had source paths that were all relative to different directories! And there was no way to tell scons to always run gcc from a consistent directory, or to tell gcov/lcov how to untangle the mess.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572132#respond' onclick='return addComment.moveForm( "div-comment-572132", "572132", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-572128">
+		<div id="div-comment-572128" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/9c87726c3cbd28e49d4190612ecb28a9?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">satta</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572128">
+		August 26, 2016</a>	</div>
+
+	<p>Nice, I like it. There&#8217;s one addition I would like to mention though.<br />
+In order to get reproducible linking order (and hence the same binary for multiple runs) I would wrap the &#8216;find&#8217; call in &#8216;$(sort &#8230;)&#8217; with LC_ALL defined to a specific locale (to avoid locale specific sorting variation). Please also see <a href="https://reproducible-builds.org/docs/stable-inputs/" rel="nofollow">https://reproducible-builds.org/docs/stable-inputs/</a> &#8212; this will make your downstream packagers&#8217; life a bit easier :)</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572128#respond' onclick='return addComment.moveForm( "div-comment-572128", "572128", "respond", "127770" )' aria-label='Reply to satta'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1 parent" id="comment-572129">
+		<div id="div-comment-572129" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/36edb7e23165becfc5e216f463763e36?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn"><a href='https://www.kantaka.co.uk/' rel='external nofollow' class='url'>Phil</a></cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572129">
+		August 26, 2016</a>	</div>
+
+	<p>Note that the tabs in your makefile have been converted to spaces by your blog posting software, which is going to be very confusing to any newbies who try out your makefile as it will fail with a syntax error when they try and invoke make.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572129#respond' onclick='return addComment.moveForm( "div-comment-572129", "572129", "respond", "127770" )' aria-label='Reply to Phil'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment byuser comment-author-vranish bypostauthor odd alt depth-2" id="comment-572133">
+		<div id="div-comment-572133" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572133">
+		August 26, 2016</a>	</div>
+
+	<p>yeah :(</p>
+<p>Unfortunately I don&#8217;t think I can fix that, but I&#8217;ll try :(</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572133#respond' onclick='return addComment.moveForm( "div-comment-572133", "572133", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-vranish bypostauthor even depth-2" id="comment-572136">
+		<div id="div-comment-572136" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572136">
+		August 26, 2016</a>	</div>
+
+	<p>ok, I think I fixed the tabs, but people still have to watch out for editors replacing the TAB with spaces on paste.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572136#respond' onclick='return addComment.moveForm( "div-comment-572136", "572136", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1 parent" id="comment-572130">
+		<div id="div-comment-572130" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/a5e0ab01b552291118d6ddd8b5332abb?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn"><a href='http://csclub.uwaterloo.ca/~tbelaire/blog' rel='external nofollow' class='url'>Theo Belaire</a></cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572130">
+		August 26, 2016</a>	</div>
+
+	<p>This is actually a really nice makefile :D</p>
+<p>The only things I could add would be an example of where in include library link flags.</p>
+<p>But this is pretty much my makefile, only using find over wildcard.<br />
+Oh, and ctags generation stuff.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572130#respond' onclick='return addComment.moveForm( "div-comment-572130", "572130", "respond", "127770" )' aria-label='Reply to Theo Belaire'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment byuser comment-author-vranish bypostauthor even depth-2" id="comment-572185">
+		<div id="div-comment-572185" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572185">
+		August 27, 2016</a>	</div>
+
+	<p>Thanks! :D</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572185#respond' onclick='return addComment.moveForm( "div-comment-572185", "572185", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1 parent" id="comment-572131">
+		<div id="div-comment-572131" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/4b78d1ec208635245dd7a848ec8377f7?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">abc</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572131">
+		August 26, 2016</a>	</div>
+
+	<p>Using &#8220;find&#8221; to discover source files means that deleting a source file does not trigger a rebuild. I need to know to manually run &#8220;make clean&#8221; to avoid the object file fro, the deleted source file being part of my executable.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572131#respond' onclick='return addComment.moveForm( "div-comment-572131", "572131", "respond", "127770" )' aria-label='Reply to abc'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment byuser comment-author-vranish bypostauthor even depth-2 parent" id="comment-572134">
+		<div id="div-comment-572134" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572134">
+		August 26, 2016</a>	</div>
+
+	<p>good point! That&#8217;s rather nasty, do you have ideas for how I could fix that?</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572134#respond' onclick='return addComment.moveForm( "div-comment-572134", "572134", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment odd alt depth-3 parent" id="comment-572138">
+		<div id="div-comment-572138" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/4b78d1ec208635245dd7a848ec8377f7?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">abc</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572138">
+		August 26, 2016</a>	</div>
+
+	<p>I don&#8217;t think there&#8217;s a perfect answer. I&#8217;ve seen real-world projects that use the &#8220;find&#8221; approach and they generally don&#8217;t try to handle this problem since it rarely bites you in practice and when it does you can &#8220;make clean&#8221;. </p>
+<p>It might be feasible to try to delete all .o files for which there is no corresponding source file, although that wouldn&#8217;t fix the even rarer case of deleting just a header file.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572138#respond' onclick='return addComment.moveForm( "div-comment-572138", "572138", "respond", "127770" )' aria-label='Reply to abc'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment even depth-4" id="comment-572144">
+		<div id="div-comment-572144" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/7ffd3cbe0da06ab5124a9e9abff69ef8?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">Anonymout</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572144">
+		August 26, 2016</a>	</div>
+
+	<p>For this, I use something like:</p>
+<p>SOURCE = $(shell find src/ -type f | sort | xargs shasum)</p>
+<p>.run-always:</p>
+<p>.source: .run-always<br />
+	@echo $(SOURCE) | cmp -s &#8211; $@ || echo $(SOURCE) &gt; $@</p>
+<p>$(TARGET): .source<br />
+	@$(CC) &#8230;</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572144#respond' onclick='return addComment.moveForm( "div-comment-572144", "572144", "respond", "127770" )' aria-label='Reply to Anonymout'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt depth-4" id="comment-572145">
+		<div id="div-comment-572145" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/7ffd3cbe0da06ab5124a9e9abff69ef8?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">Anonymous</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572145">
+		August 26, 2016</a>	</div>
+
+	<p>For this, I use something like:</p>
+<p>SOURCE = $(shell find src/ -type f | sort | xargs shasum)</p>
+<p>.run-always:</p>
+<p>.source: .run-always<br />
+	@echo $(SOURCE) | cmp -s &#8211; $@ || echo $(SOURCE) &gt; $@</p>
+<p>$(TARGET): .source<br />
+	@$(CC) &#8230;</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572145#respond' onclick='return addComment.moveForm( "div-comment-572145", "572145", "respond", "127770" )' aria-label='Reply to Anonymous'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even depth-3 parent" id="comment-572146">
+		<div id="div-comment-572146" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/6ed03c2824e3374c91a0bcfc8984c80e?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn"><a href='https://alifealgorithm.blogspot.com/' rel='external nofollow' class='url'>Stefanos Sofroniou</a></cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572146">
+		August 26, 2016</a>	</div>
+
+	<p>How about using built-in function named wildcard? Here&#8217;s the link: <a href="https://www.gnu.org/software/make/manual/make.html#Wildcard-Function" rel="nofollow">https://www.gnu.org/software/make/manual/make.html#Wildcard-Function</a></p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572146#respond' onclick='return addComment.moveForm( "div-comment-572146", "572146", "respond", "127770" )' aria-label='Reply to Stefanos Sofroniou'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment byuser comment-author-vranish bypostauthor odd alt depth-4" id="comment-572186">
+		<div id="div-comment-572186" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572186">
+		August 27, 2016</a>	</div>
+
+	<p>The main advantage of using find here is that it searches recursively. (wildcard does not)</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572186#respond' onclick='return addComment.moveForm( "div-comment-572186", "572186", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="comment-572137">
+		<div id="div-comment-572137" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/fe1fb914161cc2f0edd40eee905b65a8?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">John Wooten, PhD</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572137">
+		August 26, 2016</a>	</div>
+
+	<p>How could I convert this for Objective-C?</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572137#respond' onclick='return addComment.moveForm( "div-comment-572137", "572137", "respond", "127770" )' aria-label='Reply to John Wooten, PhD'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-even depth-1" id="comment-572142">
+		<div id="div-comment-572142" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/73d1dd538af71d39a821145246ddc70f?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn"><a href='http://buildamation.com/' rel='external nofollow' class='url'>Mark Final</a></cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572142">
+		August 26, 2016</a>	</div>
+
+	<p>This is a neat MakeFile, and as much as MakeFiles &#8216;do the job well&#8217; in *nix, I don&#8217;t find them to be a scalable solution for multi-platform projects.</p>
+<p>As an alternative to CMake, there is also BuildAMation (<a href="http://buildamation.com/" rel="nofollow">http://buildamation.com/</a>). It targets desktop platforms, can run a multithreaded command line build, or generate VisualStudio projects, Xcode projects, or even MakeFiles, all from a single declarative description of what output to build, and how those outputs dependent on each other.</p>
+<p>It uses C#, so requires Mono on *nix, but it&#8217;s pretty fast, and the scripts are in a real programming language that you can debug and profile.</p>
+<p>It&#8217;s extensible too, so beyond the core, there are packages for common compilers, Qt, Python interpreter, graphics APIs, zeromq, Flex and Bison, to name a few.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572142#respond' onclick='return addComment.moveForm( "div-comment-572142", "572142", "respond", "127770" )' aria-label='Reply to Mark Final'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1 parent" id="comment-572422">
+		<div id="div-comment-572422" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/f573347df5dcd469262d93660ed3042c?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">Dirk Webber</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-572422">
+		September 6, 2016</a>	</div>
+
+	<p>Could you publish these Makefile examples on Github with an explicit licence ? If you don&#8217;t do that, by the general rules of copyright, it means &#8220;all rights reserved&#8221; and we can&#8217;t use the code.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=572422#respond' onclick='return addComment.moveForm( "div-comment-572422", "572422", "respond", "127770" )' aria-label='Reply to Dirk Webber'>Reply</a>	</div>
+		</div>
+	<ol class="children">
+	<li class="comment byuser comment-author-vranish bypostauthor odd alt depth-2" id="comment-573060">
+		<div id="div-comment-573060" class="comment-body">
+		<div class="comment-author vcard">
+	<img src="https://spin.atomicobject.com/wp-content/authors/vranish-52.jpg" class="avatar photo" alt="Job Vranish" width="100" height="100" />	<cite class="fn">Job Vranish</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-573060">
+		September 13, 2016</a>	</div>
+
+	<p>You are free to use and distribute these Makefile examples however you wish.<br />
+If you need an explicit license: <a href="https://gist.github.com/jvranish/ae92266fa3039a5e5e8dc4cbc265f225" rel="nofollow">https://gist.github.com/jvranish/ae92266fa3039a5e5e8dc4cbc265f225</a></p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=573060#respond' onclick='return addComment.moveForm( "div-comment-573060", "573060", "respond", "127770" )' aria-label='Reply to Job Vranish'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="comment-576217">
+		<div id="div-comment-576217" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/b9ec534333161d95ff15a80f1c2bcddb?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn">Julien Vanier</cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-576217">
+		October 10, 2016</a>	</div>
+
+	<p>Great makefile template! Thanks for sharing.</p>
+<p>I had to use $(CXX) for the linker rule otherwise I get lots of undefined symbols for C++ methods.</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=576217#respond' onclick='return addComment.moveForm( "div-comment-576217", "576217", "respond", "127770" )' aria-label='Reply to Julien Vanier'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-579130">
+		<div id="div-comment-579130" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='https://secure.gravatar.com/avatar/637b7ba6a7ed4ca490f2ca94c71ad60e?s=100&amp;d=https%3A%2F%2Fsecure.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D100&amp;r=PG' class='avatar avatar-100 photo' height='100' width='100' />	<cite class="fn"><a href='http://farox.rbnet.it/' rel='external nofollow' class='url'>Farox</a></cite> <span class="says">says:</span>	</div>
+	
+	<div class="comment-meta commentmetadata"><a href="https://spin.atomicobject.com/2016/08/26/makefile-c-projects/#comment-579130">
+		November 20, 2016</a>	</div>
+
+	<p>Thanks for the Makefiles really usefull for me.<br />
+Anyway when i typed make i received this error:<br />
+find: paths must precede expression: &#8230;&#8230;.cpp</p>
+<p>and to solve in my case i need to add single quote to&#8230;<br />
+SRCS := $(shell find $(SRC_DIRS) -name &#8216;*.cpp&#8217; -or -name &#8216;*.c&#8217; -or -name &#8216;*.s&#8217;)</p>
+
+	<div class="reply">
+	<a rel='nofollow' class='comment-reply-link' href='https://spin.atomicobject.com/2016/08/26/makefile-c-projects/?replytocom=579130#respond' onclick='return addComment.moveForm( "div-comment-579130", "579130", "respond", "127770" )' aria-label='Reply to Farox'>Reply</a>	</div>
+		</div>
+	</li><!-- #comment-## -->
+		</ol><!-- .comment-list -->
+
+		
+	
+	
+
+		<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Join the conversation <small><a rel="nofollow" id="cancel-comment-reply-link" href="/2016/08/26/makefile-c-projects/#respond" style="display:none;">Cancel reply</a></small></h3>			<form action="https://spin.atomicobject.com/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate>
+				<p class="comment-notes"><span id="email-notes">Your email address will not be published.</span> Required fields are marked <span class="required">*</span></p><p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" aria-required="true" required="required"></textarea></p><p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" aria-required='true' required='required' /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="email" value="" size="30" maxlength="100" aria-describedby="email-notes" aria-required='true' required='required' /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="url" value="" size="30" maxlength="200" /></p>
+<!-- Subscribe to Comments Reloaded version 160915 --><!-- BEGIN: subscribe to comments reloaded --><p><label for='subscribe-reloaded'><select name='subscribe-reloaded' id='subscribe-reloaded'>
+								<option value='none' >Don't subscribe</option>
+								<option value='yes' >All</option>
+								<option value='replies' selected='selected'>Replies to my comments</option>
+							</select> Notify me of followup comments via e-mail. You can also <a href='https://spin.atomicobject.com/comment-subscriptions?srp=127770&amp;srk=788c0f0dc030a5236e2288367fd19262&amp;sra=s&amp;srsrc=f'>subscribe</a> without commenting.</label></p><!-- END: subscribe to comments reloaded --><p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Submit Comment" /> <input type='hidden' name='comment_post_ID' value='127770' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+</p><p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="6729a4c6d9" /></p><p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="56"/></p>			</form>
+			</div><!-- #respond -->
+	
+</div><!-- #comments -->
+
+</div>
+
+
+	</div>
+
+  
+</div> <!-- closing #page -->
+
+<footer class="call-to-action-footer red" style="background-image: url('https://spin.atomicobject.com/wp-content/themes/spin/images/ao-footer-image.jpg'); background-size: cover; background-position: 50% 50%;">
+
+	<div class="trapezoid"></div>
+
+	<div class="footer-content">
+		<p>Atomic does more than talk about software. We also make it — for clients large and small in all kinds of industries.</p>
+		<a href="http://atomicobject.com/portfolio">Check out our portfolio.</a>
+	</div>
+</footer>
+
+<footer id="main-footer">
+	<div id="footer-container">
+
+		<p class="atomic-slug">
+			<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/ao-wordmark-white.svg" width="160" />
+			Atomic is a software design + development consultancy.
+		</p>
+
+		<small class="copyright">&copy; 2017 Atomic Object LLC</small>
+
+		<div class="footer-links" id="footer-explore">
+			<h5>Explore</h5>
+			<ul>
+				<li><a href="https://atomicobject.com/careers">Careers</a></li>
+				<li><a href="https://atomicobject.com/diversity">Diversity</a></li>
+				<li><a href="https://atomicobject.com/resources">Resources</a></li>
+				<li><a href="http://spin.atomicobject.com">Atomic Blog</a></li>
+			</ul>
+		</div>
+
+		<div class="footer-links" id="footer-offices">
+			<h5>Offices</h5>
+			<ul>
+				<li><a href="https://atomicobject.com/contact/grand-rapids">Grand Rapids</a></li>
+				<li><a href="https://atomicobject.com/contact/ann-arbor">Ann Arbor</a></li>
+			</ul>
+		</div>
+
+		<div class="footer-links" id="footer-details">
+			<h5>Details</h5>
+			<ul>
+				<li><a href="http://atomobj.io/factsheet">Fact Sheet</a></li>
+				<li><a href="https://atomicobject.com/contact">Contact</a></li>
+				<li><a href="https://atomicobject.com/">+1 616 776 6020</a></li>
+			</ul>
+		</div>
+
+		<div class="social footer-links">
+			<ul>
+				<li>
+					<a href="https://twitter.com/atomicobject">
+						<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/circle-twitter.svg" />
+					</a>
+				</li>
+				<li>
+					<a href="https://www.facebook.com/atomicobject">
+						<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/circle-facebook.svg" />
+					</a>
+				</li>
+				<li>
+					<a href="https://github.com/atomicobject">
+						<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/circle-github.svg" />
+					</a>
+				</li>
+				<li>
+					<a href="https://www.linkedin.com/company/atomic-object">
+						<img src="https://spin.atomicobject.com/wp-content/themes/spin/images/circle-linkedin.svg" />
+					</a>
+				</li>
+			</ul>
+		</div>
+
+	</div>
+</footer>
+
+<script type="text/javascript">
+var _sf_async_config={uid:17044,domain:"atomicobject.com"};
+(function(){
+  function loadChartbeat() {
+    window._sf_endpt=(new Date()).getTime();
+    var e = document.createElement('script');
+    e.setAttribute('language', 'javascript');
+    e.setAttribute('type', 'text/javascript');
+    e.setAttribute('src',
+       (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
+       "static.chartbeat.com/js/chartbeat.js");
+    document.body.appendChild(e);
+  }
+  var oldonload = window.onload;
+  window.onload = (typeof window.onload != 'function') ?
+     loadChartbeat : function() { oldonload(); loadChartbeat(); };
+})();
+</script>
+	<div style="display:none">
+	<div class="grofile-hash-map-23bd498511a79e564b947aa22be33628">
+	</div>
+	<div class="grofile-hash-map-ad8386575d8c2c6b0b776e5ce3a59923">
+	</div>
+	<div class="grofile-hash-map-f1c73baf3a14b42e65c421b2354d8561">
+	</div>
+	<div class="grofile-hash-map-9c87726c3cbd28e49d4190612ecb28a9">
+	</div>
+	<div class="grofile-hash-map-36edb7e23165becfc5e216f463763e36">
+	</div>
+	<div class="grofile-hash-map-a5e0ab01b552291118d6ddd8b5332abb">
+	</div>
+	<div class="grofile-hash-map-4b78d1ec208635245dd7a848ec8377f7">
+	</div>
+	<div class="grofile-hash-map-7ffd3cbe0da06ab5124a9e9abff69ef8">
+	</div>
+	<div class="grofile-hash-map-6ed03c2824e3374c91a0bcfc8984c80e">
+	</div>
+	<div class="grofile-hash-map-fe1fb914161cc2f0edd40eee905b65a8">
+	</div>
+	<div class="grofile-hash-map-73d1dd538af71d39a821145246ddc70f">
+	</div>
+	<div class="grofile-hash-map-f573347df5dcd469262d93660ed3042c">
+	</div>
+	<div class="grofile-hash-map-b9ec534333161d95ff15a80f1c2bcddb">
+	</div>
+	<div class="grofile-hash-map-637b7ba6a7ed4ca490f2ca94c71ad60e">
+	</div>
+	</div>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/plugins/akismet/_inc/form.js?ver=3.3'></script>
+<link rel='stylesheet' id='stcr-plugin-style-css'  href='https://spin.atomicobject.com/wp-content/plugins/subscribe-to-comments-reloaded/includes/css/stcr-plugin-style.css?ver=4.7.3' type='text/css' media='all' />
+<script type='text/javascript' src='https://s0.wp.com/wp-content/js/devicepx-jetpack.js?ver=201722'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/plugins/wp-syntax/js/wp-syntax.js?ver=1.1'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-includes/js/comment-reply.min.js?ver=4.7.3'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-includes/js/wp-embed.min.js?ver=4.7.3'></script>
+<script type='text/javascript' src='https://spin.atomicobject.com/wp-content/plugins/subscribe-to-comments-reloaded/includes/js/stcr-plugin.js?ver=4.7.3'></script>
+<script type='text/javascript' src='https://stats.wp.com/e-201722.js' async defer></script>
+<script type='text/javascript'>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {v:'ext',j:'1:4.8.2',blog:'48967926',post:'127770',tz:'-4',srv:'spin.atomicobject.com'} ]);
+	_stq.push([ 'clickTrackerInit', '48967926', '127770' ]);
+</script>
+
+</body>
+</html>
